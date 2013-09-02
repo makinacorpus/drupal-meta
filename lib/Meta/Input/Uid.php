@@ -31,6 +31,8 @@ class Uid extends AbstractInput
 
     public function findProperties($type, $bundle)
     {
-        return array('uid' => t("Owner account"));
+        return array(
+            0 => t("Owner account"),
+        );
     }
 }

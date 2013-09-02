@@ -111,6 +111,27 @@ class Og extends AbstractPlugin
 
     public function getDefaultMapping()
     {
-        return array();
+        return array(
+            array(
+              'name'  => 'og:type',
+              'input' => 'entityinfo:bundle',
+            ),
+            array(
+              'name'  => 'og:title',
+              'input' => 'entityinfo:label',
+            ),
+            array(
+              'name'  => 'og:description',
+              'input' => 'field-text:body',
+            ),
+            array(
+              'name'  => 'og:url',
+              'input' => 'entityurl:0',
+            ),
+            array(
+              'name'  => 'og:author',
+              'input' => 'uid:uid',
+            ),
+        );
     }
 }

@@ -40,7 +40,7 @@ class Html extends AbstractPlugin
             ),
             array(
                 'name'  => 'author',
-                'input' => 'uid:uid',
+                'input' => 'uid:0',
             ),
             array(
                 'name'  => 'keywords',
