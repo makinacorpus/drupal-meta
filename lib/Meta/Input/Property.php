@@ -2,14 +2,12 @@
 
 namespace Meta\Input;
 
-use Meta\InputInterface;
-
 /**
  * Mock up implementation for testing
  *
  * For simple need you may consider using it yet it is not recommended
  */
-class Property implements InputInterface
+class Property extends AbstractInput
 {
     public function get($property, $type, $entity, $index = 0)
     {

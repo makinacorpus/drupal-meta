@@ -2,9 +2,7 @@
 
 namespace Meta\Output;
 
-use Meta\InputInterface;
 use Meta\Node;
-use Meta\OutputInterface;
 
 /**
  * Uses text input and concat multiple values with a separator

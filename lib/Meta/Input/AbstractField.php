@@ -2,12 +2,10 @@
 
 namespace Meta\Input;
 
-use Meta\InputInterface;
-
 /**
  * Fetch data from a field
  */
-abstract class AbstractField implements InputInterface
+abstract class AbstractField extends AbstractInput
 {
     /**
      * Convert single item to targetted type

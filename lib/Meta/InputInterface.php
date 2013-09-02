@@ -2,7 +2,7 @@
 
 namespace Meta;
 
-interface InputInterface
+interface InputInterface extends ComponentInterface
 {
     /**
      * Get single value

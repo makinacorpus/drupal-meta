@@ -2,20 +2,13 @@
 
 namespace Meta\Output;
 
-use Meta\InputInterface;
 use Meta\Node;
-use Meta\OutputInterface;
 
 /**
  * Uses primitive values input and use it for display
  */
-class Scalar implements OutputInterface
+class Scalar extends AbstractOutput
 {
-    public function getDefaultOptions()
-    {
-        return array();
-    }
-
     /**
      * Convert value to string
      *

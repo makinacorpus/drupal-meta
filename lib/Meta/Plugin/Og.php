@@ -15,11 +15,11 @@ class Og extends AbstractPlugin
             // Common values.
             'og:type' => array(
                 'label'  => t("Default: Type"),
-                'output' => array('entitytype', 'text'),
+                'output' => array('text'),
             ),
             'og:title' => array(
                 'label'  => t("Default: Title"),
-                'output' => array('entitytype', 'text'),
+                'output' => array('text'),
             ),
             'og:description' => array(
                 'label'  => t("Default: Description"),

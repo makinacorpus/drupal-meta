@@ -5,7 +5,7 @@ namespace Meta;
 /**
  * Defines a property to node converter
  */
-interface OutputInterface
+interface OutputInterface extends ComponentInterface
 {
     /**
      * Get default options

@@ -3,12 +3,11 @@
 namespace Meta\Output;
 
 use Meta\Node;
-use Meta\OutputInterface;
 
 /**
  * Display an URL
  */
-class Url implements OutputInterface
+class Url extends AbstractOutput
 {
     public function getDefaultOptions()
     {

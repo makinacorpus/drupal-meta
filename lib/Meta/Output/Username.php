@@ -3,9 +3,8 @@
 namespace Meta\Output;
 
 use Meta\Node;
-use Meta\OutputInterface;
 
-class Username implements OutputInterface
+class Username extends AbstractOutput
 {
     public function getDefaultOptions()
     {

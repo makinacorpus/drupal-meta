@@ -3,9 +3,9 @@
 namespace Meta\Output\Og;
 
 use Meta\Node;
-use Meta\OutputInterface;
+use Meta\Output\AbstractOutput;
 
-class Image implements OutputInterface
+class Image extends AbstractOutput
 {
     public function getDefaultOptions()
     {

@@ -82,5 +82,3 @@ $output = '';
 foreach ($nodes as $node) {
   $output .= (string)$node;
 }
-
-

@@ -2,16 +2,14 @@
 
 namespace Meta\Output;
 
-use Meta\InputInterface;
 use Meta\Node;
-use Meta\OutputInterface;
 
 /**
  * Uses text input and use it for display
  *
  * @todo Truncate option
  */
-class Text implements OutputInterface
+class Text extends AbstractOutput
 {
     public function getDefaultOptions()
     {

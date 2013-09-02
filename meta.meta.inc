@@ -31,7 +31,7 @@ function meta_meta_info_input() {
     ),
     'entityinfo' => array(
       'class'  => '\Meta\Input\EntityInfo',
-      'output' => 'scalar',
+      'output' => 'text',
     ),
     'entityurl' => array(
       'class'  => '\Meta\Input\EntityUrl',
@@ -74,14 +74,6 @@ function meta_meta_info_input() {
  */
 function meta_meta_info_output() {
   return array(
-    'entitybundle' => array(
-      'class' => '\Meta\Output\EntityBundle',
-      'input' => array('scalar'),
-    ),
-    'entitytype' => array(
-      'class' => '\Meta\Output\EntityType',
-      'input' => array('scalar'),
-    ),
     'html.keywords'  => array(
       'class' => '\Meta\Output\Html\Keywords',
       'input' => array('term', 'text'),

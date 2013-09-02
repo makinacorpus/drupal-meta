@@ -2,7 +2,6 @@
 
 namespace Meta\Output;
 
-use Meta\OutputInterface;
 use Meta\Node;
 
 /**

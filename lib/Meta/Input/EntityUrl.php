@@ -2,12 +2,7 @@
 
 namespace Meta\Input;
 
-use Meta\InputInterface;
-
-/**
- * Fetch a user identifier by arbitrarily looking up for a "uid" property
- */
-class EntityUrl implements InputInterface
+class EntityUrl extends AbstractInput
 {
     public function get($property, $type, $entity, $index = 0)
     {

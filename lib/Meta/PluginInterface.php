@@ -2,36 +2,8 @@
 
 namespace Meta;
 
-interface PluginInterface extends ServiceAwareInterface
+interface PluginInterface extends ComponentInterface
 {
-    /**
-     * Get label
-     *
-     * @return string
-     */
-    public function getLabel();
-
-    /**
-     * Set label
-     *
-     * @param string $label
-     */
-    public function setLabel($label);
-
-    /**
-     * Get type
-     *
-     * @return string
-     */
-    public function getType();
-
-    /**
-     * Set type
-     *
-     * @param string $type
-     */
-    public function setType($type);
-
     /**
      * Does this plugin allow arbitrary user input
      *
