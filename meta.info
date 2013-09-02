@@ -1,0 +1,5 @@
+name = Meta
+description = Meta entity description helper.
+core = 7.x
+package = Web services
+dependencies[] = fieldture

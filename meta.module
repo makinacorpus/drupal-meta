@@ -1,0 +1,269 @@
+<?php
+
+/**
+ * @file
+ * Meta helper.
+ *
+ * @todo
+ *   - Build
+ *   - entity_save()
+ *     - Possible to be generic?
+ *     - Option to build data load (settings)
+ *       - Per meta type? Or bundle?
+ *   - Generic storage arbitrary data
+ *     - Custom? Entity? Which controller?
+ *     - Links to pages (no entity)!
+ *   - Node form
+ *     - New vertical tab
+ *       - Per meta type?
+ *   - Admin block
+ *     - When entity: edit entity meta
+ *     - When NOT entity: edit "page" meta
+ *   - Inheritance mecanism
+ *     - Chain of responsability
+ *     - Merge or not?
+ *     - Find nice UI concept
+ */
+
+/**
+ * Cache in field is enabled.
+ */
+const META_CACHE_ENABLED = true;
+
+/**
+ * Meta field type and name prefix.
+ */
+const META_FIELD = 'meta';
+
+/**
+ * Default filter for description.
+ */
+const META_FILTER = 'meta_description';
+
+/**
+ * Custom autoloader.
+ */
+if (!class_exists('Meta\Node')) {
+  spl_autoload_register(function ($className) {
+    if (false !== strpos($className, '\\')) {
+      $parts = explode('\\', $className);
+      if ('Meta' === $parts[0]) {
+        $filename = __DIR__ . '/lib/' . implode('/', $parts) . '.php';
+        return (bool)include_once $filename;
+      }
+    }
+    return false;
+  });
+}
+
+/**
+ * We need field info.
+ */
+require_once __DIR__ . '/meta.field.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function meta_menu() {
+  $items = array();
+
+  $items['admin/config/services/meta'] = array(
+    'title'            => "Meta",
+    'description'      => "Configure entity driven meta information.",
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('meta_admin_bundle'),
+    'access arguments' => array('administer site configuration'),
+    'file'             => 'meta.admin.inc',
+    'type'             => MENU_NORMAL_ITEM,
+  );
+  $items['admin/config/services/meta/bundles'] = array(
+    'title'            => "Bundles",
+    'type'             => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['admin/config/services/meta/bundles/%meta/%'] = array(
+    'title'            => 'Mapping',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('meta_mapping_form', 5, 6),
+    'access arguments' => array('administer site configuration'),
+    'file'             => 'meta.form.inc',
+    'type'             => MENU_CALLBACK | MENU_VISIBLE_IN_BREADCRUMB,
+  );
+  $items['admin/config/services/meta/settings'] = array(
+    'title'            => 'Settings',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('meta_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file'             => 'meta.admin.inc',
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 50,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function meta_theme() {
+  return array(
+    'meta_mapping_form' => array(
+      'render element' => 'form',
+      'file'           => 'meta.form.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_hook_info().
+ */
+function meta_hook_info() {
+  return array(
+    'meta_info' => array(
+      'group' => 'meta',
+    ),
+    'meta_info_input' => array(
+      'group' => 'meta',
+    ),
+    'meta_info_output' => array(
+      'group' => 'meta',
+    ),
+  );
+}
+
+/**
+ * Menu loader.
+ *
+ * @param string $key
+ *   Meta plugin key.
+ *
+ * @return array
+ *   Meta info about this key.
+ */
+function meta_load($key) {
+  if ($plugin = meta_service_get()->getPlugin($key)) {
+    return $plugin;
+  }
+  return false;
+}
+
+/**
+ * Get meta service.
+ *
+ * @return \Meta\Service
+ */
+function meta_service_get() {
+  $instance = &drupal_static(__FUNCTION__);
+  if (null === $instance) {
+    $instance = new \Meta\Service();
+  }
+  return $instance;
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function meta_entity_view($entity, $type, $view_mode, $langcode) {
+  // Ensure we are viewing the piece of content in full page.
+  if (($uri = entity_uri($type, $entity)) || $uri['path'] !== current_path()) {
+    $service = meta_service_get();
+    if (META_CACHE_ENABLED) {
+      // When cache mode is enabled, use the cached field values. This mode
+      // ensures best performances since meta data should remain dependent
+      // on node content and node content only.
+      foreach ($service->getPluginsFor($type, $entity) as $plugin) {
+        if ($items = field_get_items($type, $entity, $plugin->getFieldName())) {
+          foreach ($items as $item) {
+            if (!empty($item['data']) && ($build = unserialize($item['data']))) {
+              meta_entity_display($build);
+            }
+          }
+        }
+      }
+    } else {
+      // When cache mode is not enabled then compute everything everytime the
+      // content is being viewed. For sites with no logged in users this is
+      // probably a very good default since pages will be cached instead.
+      foreach ($service->getPluginsFor($type, $entity) as $plugin) {
+        if ($nodes = meta_entity_process($plugin, $type, $entity)) {
+          if ($build = meta_entity_build($nodes)) {
+            meta_entity_display($build);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function meta_entity_presave($entity, $type) {
+  $service = meta_service_get();
+  if (META_CACHE_ENABLED) {
+    foreach ($service->getPluginsFor($type, $entity) as $plugin) {
+      if ($nodes = meta_entity_process($plugin, $type, $entity)) {
+        if ($build = meta_entity_build($nodes)) {
+          $entity->{$plugin->getFieldName()} = array(LANGUAGE_NONE => array(0 => array('data' => serialize($build))));
+        }
+      }
+    }
+  }
+}
+
+/**
+ * From the given nodes get the meta build array.
+ *
+ * @param \Meta\Node[] $nodes
+ *   Nodes.
+ *
+ * @return array
+ *   drupal_render() and drupal_add_html_head() friendly array.
+ */
+function meta_entity_build(array $nodes) {
+  static $count = 0; // Static because we might have some on the same page.
+  $ret = array();
+  foreach ($nodes as $node) {
+    foreach ($node->build() as $build) {
+      $build['#weight'] = 40315 + (++$count);
+      $ret['meta' . $count] = $build;
+    }
+  }
+  return $ret;
+}
+
+/**
+ * Set real meta headers.
+ *
+ * @param array[] $items
+ *   Set of values for drupal_add_html_head().
+ */
+function meta_entity_display(array $items) {
+  foreach ($items as $key => $build) {
+    drupal_add_html_head($build, $key);
+  }
+}
+
+/**
+ * Build meta for given entity
+ *
+ * @param \Meta\PluginInterface $plugin
+ *   Plugin.
+ * @param string $type
+ *   Entity type.
+ * @param object $entity
+ *   Entity.
+ *
+ * @return \Meta\Node[]
+ *   Tree of meta nodes.
+ */
+function meta_entity_process(\Meta\PluginInterface $plugin, $type, $entity) {
+  require_once __DIR__ . '/meta.build.inc';
+  return _meta_entity_process($plugin, $type, $entity);
+}
+
+/**
+ * Implements hook_fieldture_info().
+ */
+function meta_fieldture_info() {
+  return meta_service_get()->getFieldtureInfo();
+}

@@ -1,0 +1,80 @@
+<?php
+
+/**
+ * @file
+ * Open Graph Node schema definition.
+ */
+
+/**
+ * We need constants.
+ */
+require_once __DIR__ . '/meta.module';
+
+/**
+ * Implements hook_field_schema().
+ */
+function meta_field_schema($field) {
+  switch ($field['type']) {
+
+    case META_FIELD:
+      return array(
+        // Sorry I hate using serialized data in database but let's use it
+        // anyway data is not predictible: it will depend on what's
+        // automatic and what's not and on what the user was able and has
+        // overriden.
+        'columns' => array(
+          'data' => array(
+            'type' => 'blob',
+          ),
+          'mapping' => array(
+            'type' => 'blob',
+          ),
+        ),
+      );
+  }
+}
+
+/**
+ * Implements hook_install().
+ */
+function meta_install() {
+  db_insert('filter_format')->fields(array(
+    'format' => META_FILTER,
+    'name'   => "Meta description",
+  ))->execute();
+  db_insert('filter')
+    ->fields(array('format', 'module', 'name', 'weight', 'status', 'settings'))
+    ->values(array(META_FILTER, 'filter', 'filter_autop', -50, 1, serialize(array())))
+    ->values(array(META_FILTER, 'filter', 'filter_html_escape', -49, 1, serialize(array())))
+    ->execute();
+  cache_clear_all('filter_formats:*', 'cache', true);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function meta_uninstall() {
+  db_delete('filter')
+    ->condition('format', META_FILTER)
+    ->execute();
+  db_delete('filter_format')
+    ->condition('format', META_FILTER)
+    ->execute();
+  cache_clear_all('filter_formats:*', 'cache', true);
+}
+
+/**
+ * Adds the default filter.
+ */
+function meta_update_7001() {
+  db_insert('filter_format')->fields(array(
+    'format' => META_FILTER,
+    'name'   => "Meta description",
+  ))->execute();
+  db_insert('filter')
+    ->fields(array('format', 'module', 'name', 'weight', 'status', 'settings'))
+    ->values(array(META_FILTER, 'filter', 'filter_autop', -50, 1, serialize(array())))
+    ->values(array(META_FILTER, 'filter', 'filter_html_escape', -49, 1, serialize(array())))
+    ->execute();
+  cache_clear_all('filter_formats:*', 'cache', true);
+}
