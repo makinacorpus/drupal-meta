@@ -11,6 +11,44 @@
 require_once __DIR__ . '/meta.module';
 
 /**
+ * Implements hook_schema().
+ */
+function meta_schema() {
+  return array(
+    'meta_misc' => array(
+      'description' => "Stores meta tags for various other objects than entities (e.g. pages)",
+      'fields' => array(
+        'id' => array(
+          'description' => 'Primary identifier',
+          'type'        => 'serial',
+          'unsigned'    => true,
+          'not null'    => true,
+        ),
+        'bundle' => array(
+          'description' => "Meta instance bundle (e.g. 'page')",
+          'type'        => 'varchar',
+          'length'      => 32,
+          'not null'    => true,
+        ),
+        'target' => array(
+          'description' => "Target identifier (e.g. for a page its canonical internal path)",
+          'type'        => 'varchar',
+          'length'      => 255,
+          'not null'    => true,
+        ),
+      ),
+      'indexes' => array(
+        'meta_misc_bundle_target_idx' => array('bundle', 'target'),
+      ),
+      'unique keys' => array(
+        'meta_misc_bundle_target_uk' => array('bundle', 'target'),
+      ),
+      'primary key' => array('id'),
+    ),
+  );
+}
+
+/**
  * Implements hook_field_schema().
  */
 function meta_field_schema($field) {
@@ -77,4 +115,19 @@ function meta_update_7001() {
     ->values(array(META_FILTER, 'filter', 'filter_html_escape', -49, 1, serialize(array())))
     ->execute();
   cache_clear_all('filter_formats:*', 'cache', true);
+}
+
+/**
+ * Adds the {meta_misc} table.
+ */
+function meta_update_7002() {
+  if (!db_table_exists('meta_misc')) {
+    db_create_table(
+      'meta_misc',
+      drupal_get_schema_unprocessed(
+        'meta',
+        'meta_misc'
+      )
+    );
+  }
 }

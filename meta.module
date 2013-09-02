@@ -36,6 +36,11 @@ const META_CACHE_ENABLED = true;
 const META_FIELD = 'meta';
 
 /**
+ * Meta entity type for non entity instances.
+ */
+const META_ENTITY = 'meta';
+
+/**
  * Default filter for description.
  */
 const META_FILTER = 'meta_description';
@@ -99,6 +104,44 @@ function meta_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function meta_entity_info() {
+  return array(
+    META_ENTITY => array(
+      'label'          => t("Meta"),
+      'base table'     => 'meta_misc',
+      'label callback' => 'meta_entity_label',
+      'fieldable'      => true,
+      'entity keys'    => array(
+        'id'           => 'id',
+        'bundle'       => 'bundle',
+      ),
+      'bundles'        => array(
+        'page'         => array(
+          'label'      => t("Page"),
+          'view modes' => array(),
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Entity label callback for meta entities.
+ */
+function meta_entity_label($entity, $type) {
+  if (META_ENTITY === $type) {
+    $info  = entity_get_info(META_ENTITY);
+    $label = $info['bundles'][$entity->bundle]['label'];
+    return t("Meta tags for %target @type", array(
+      '%target' => $entity->target,
+      '@type'   => $entity->bundle,
+    ));
+  }
 }
 
 /**
