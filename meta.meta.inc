@@ -102,3 +102,19 @@ function meta_meta_info_output() {
     ),
   );
 }
+
+/**
+ * Implements hook_meta_info_bundle().
+ */
+function meta_meta_info_bundle() {
+  return array(
+    'global' => array(
+      'class' => '\Meta\Entity\Bundle\Globl',
+      'label' => t("Global"),
+    ),
+    'page' => array(
+      'class' => '\Meta\Entity\Bundle\Page',
+      'label' => t("Page"),
+    ),
+  );
+}

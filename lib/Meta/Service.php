@@ -2,6 +2,9 @@
 
 namespace Meta;
 
+use Meta\Entity\BundleInterface;
+use Meta\Entity\MetaEntity;
+
 class Service
 {
     /**
@@ -18,6 +21,11 @@ class Service
      * @var array
      */
     protected $outputInfo;
+
+    /**
+     * @var array
+     */
+    protected $bundleInfo;
 
     /**
      * Ensure plugin definition
@@ -68,7 +76,7 @@ class Service
     {
         if (isset($info['class']) && class_exists($info['class'])) {
             $instance = new $info['class']();
-            if ($instance instanceof PluginInterface) {
+            if ($instance instanceof ComponentInterface) {
                 if (null !== $key) {
                     $instance->setType($key);
                 }
@@ -322,7 +330,7 @@ class Service
                     'type'        => META_FIELD,
                     'cardinality' => 1,
                 ),
-                'custom_ui' => true,
+                //'custom_ui' => true,
                 'instance' => array(
                     'label'   => $plugin->getLabel(),
                     'display' => array(
@@ -338,5 +346,105 @@ class Service
         }
 
         return $ret;
+    }
+
+    /**
+     * Get Drupal entity info
+     *
+     * @return array
+     */
+    public function getEntityInfo()
+    {
+        $ret = array(
+            META_ENTITY => array(
+                'label'            => t("Meta"),
+                'base table'       => 'meta_misc',
+                'label callback'   => 'meta_entity_label',
+                'controller class' => '\Meta\Entity\Controller',
+                'fieldable'        => true,
+                'bundles'          => array(),
+                'entity keys'      => array(
+                    'id'           => 'id',
+                    'bundle'       => 'bundle',
+                ),
+            ),
+        );
+
+        foreach ($this->getEntityBundleInfo() as $key => $foo) {
+            if ($bundle = $this->getEntityBundle($key)) {
+                $ret[META_ENTITY]['bundles'][$key] = array(
+                    'label'      => $bundle->getLabel(),
+                    'view modes' => array(),
+                );
+            }
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Get entity controller for loading meta entities
+     *
+     * @return \DrupalEntityControllerInterface
+     */
+    public function getMetaEntityController()
+    {
+        return entity_get_controller(META_ENTITY);
+    }
+
+    /**
+     * Get output into
+     *
+     * @return array[]
+     */
+    public function getEntityBundleInfo()
+    {
+        if (null === $this->bundleInfo) {
+            $this->bundleInfo = $this->buildInfo('meta_info_bundle');
+        }
+
+        return $this->bundleInfo;
+    }
+
+    /**
+     * Get bundle instance
+     *
+     * @param string $key
+     *
+     * @return BundleInterface
+     */
+    public function getEntityBundle($key)
+    {
+        $info = $this->getEntityBundleInfo();
+
+        if (isset($info[$key])) {
+            return $this->createInstance($info[$key], $key);
+        }
+    }
+
+    /**
+     * Load a single entity
+     *
+     * @param int $id
+     *
+     * @return MetaEntity
+     */
+    public function loadEntity($id)
+    {
+        if ($ret = $this->loadEntities(array($id))) {
+            return reset($ret);
+        }
+    }
+
+    /**
+     * Load meta entities
+     *
+     * @param array $idList
+     *
+     * @return MetaEntity[]
+     */
+    public function loadEntities(array $idList)
+    {
+        return entity_get_controller(META_ENTITY)->load($idList);
     }
 }

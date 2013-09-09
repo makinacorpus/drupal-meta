@@ -82,7 +82,7 @@ function meta_menu() {
     'type'             => MENU_NORMAL_ITEM,
   );
   $items['admin/config/services/meta/bundles'] = array(
-    'title'            => "Bundles",
+    'title'            => "Entities",
     'type'             => MENU_DEFAULT_LOCAL_TASK,
   );
   $items['admin/config/services/meta/bundles/%meta/%'] = array(
@@ -93,6 +93,55 @@ function meta_menu() {
     'file'             => 'meta.form.inc',
     'type'             => MENU_CALLBACK | MENU_VISIBLE_IN_BREADCRUMB,
   );
+
+  // Custom meta entities listing.
+  $items['admin/config/services/meta/misc'] = array(
+    'title'            => "Others",
+    'page callback'    => 'meta_admin_misc',
+    'access arguments' => array('administer site configuration'),
+    'file'             => 'meta.admin.inc',
+    'type'             => MENU_LOCAL_TASK,
+  );
+  $items['admin/config/services/meta/misc/list'] = array(
+    'title'            => "List",
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('meta_admin_misc_list'),
+    'access arguments' => array('administer site configuration'),
+    'file'             => 'meta.admin.inc',
+    'type'             => MENU_LOCAL_TASK,
+  );
+  $items['admin/config/services/meta/misc/overview'] = array(
+    'title'            => "Overview",
+    'type'             => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  // Single custom meta handling (view form is edit form).
+  $items['admin/config/services/meta/misc/add/%meta_bundle'] = array(
+    'title'            => 'Add meta',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('meta_admin_misc_add', 6),
+    'access arguments' => array('administer site configuration'),
+    'file'             => 'meta.admin.inc',
+    'type'             => MENU_CALLBACK | MENU_VISIBLE_IN_BREADCRUMB,
+  );
+  $items['admin/config/services/meta/misc/list/%meta_object'] = array(
+    'title'            => 'Edit meta',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('meta_admin_misc_edit', 6),
+    'access arguments' => array('administer site configuration'),
+    'file'             => 'meta.admin.inc',
+    'type'             => MENU_CALLBACK | MENU_VISIBLE_IN_BREADCRUMB,
+  );
+  $items['admin/config/services/meta/misc/list/%meta_object/delete'] = array(
+    'title'            => 'Delete meta',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('meta_admin_misc_delete', 6),
+    'access arguments' => array('administer site configuration'),
+    'file'             => 'meta.admin.inc',
+    'type'             => MENU_CALLBACK | MENU_VISIBLE_IN_BREADCRUMB,
+  );
+
+  // Main admin config form.
   $items['admin/config/services/meta/settings'] = array(
     'title'            => 'Settings',
     'page callback'    => 'drupal_get_form',
@@ -110,24 +159,14 @@ function meta_menu() {
  * Implements hook_entity_info().
  */
 function meta_entity_info() {
-  return array(
-    META_ENTITY => array(
-      'label'          => t("Meta"),
-      'base table'     => 'meta_misc',
-      'label callback' => 'meta_entity_label',
-      'fieldable'      => true,
-      'entity keys'    => array(
-        'id'           => 'id',
-        'bundle'       => 'bundle',
-      ),
-      'bundles'        => array(
-        'page'         => array(
-          'label'      => t("Page"),
-          'view modes' => array(),
-        ),
-      ),
-    ),
-  );
+  return meta_service_get()->getEntityInfo();
+}
+
+/**
+ * Implements hook_fieldture_info().
+ */
+function meta_fieldture_info() {
+  return meta_service_get()->getFieldtureInfo();
 }
 
 /**
@@ -170,7 +209,38 @@ function meta_hook_info() {
     'meta_info_output' => array(
       'group' => 'meta',
     ),
+    'meta_info_bundle' => array(
+      'group' => 'meta',
+    ),
   );
+}
+
+/**
+ * Meta bundle
+ *
+ * @param string $key
+ *
+ * @return BundleInterface
+ */
+function meta_bundle_load($key) {
+  if ($bundle = meta_service_get()->getEntityBundle($key)) {
+    return $bundle;
+  }
+  return false;
+}
+
+/**
+ * Menu loader.
+ *
+ * @param int $id
+ *
+ * @return MetaEntity
+ */
+function meta_object_load($id) {
+  if ($entity = meta_service_get()->loadEntity($id)) {
+    return $entity;
+  }
+  return false;
 }
 
 /**
@@ -350,11 +420,4 @@ function meta_entity_process(\Meta\PluginInterface $plugin, $type, $entity) {
   }
 
   return $nodes;
-}
-
-/**
- * Implements hook_fieldture_info().
- */
-function meta_fieldture_info() {
-  return meta_service_get()->getFieldtureInfo();
 }
