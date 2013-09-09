@@ -7,13 +7,50 @@
  */
 
 /**
+ * Single entity form.
+ *
+ * @param array $form
+ *   Form API form.
+ * @param array $form_state
+ *   Form API form state.
+ * @param string $type
+ *   Entity type.
+ * @param object $entity
+ *   Entity object.
+ * @param string $pluginKey
+ *   Meta plugin key.
+ */
+function meta_entity_form($form, &$form_state, $type, $entity, $pluginKey) {
+
+  $form['#tree']  = true;
+  $form['#theme'] = 'meta_entity_form';
+  $form['#id']    = 'meta-entity-form';
+
+  $uri = entity_uri($type, $entity);
+
+  $form['actions'] = array(
+    '#type'  => 'actions',
+    'submit' => array(
+      '#type'   => 'submit',
+      '#value'  => t("Save"),
+      '#submit' => array('meta_entity_form_submit_save'),
+    ),
+    'cancel' => array(
+      '#markup' => l(t("Cancel"), isset($_GET['destination']) ? $_GET['destination'] : ($uri ? $uri['path'] : 'admin/config/services/meta/bundles'))
+    ),
+  );
+
+  return $form;
+}
+
+/**
  * Generic mapping configuration form.
  */
 function meta_mapping_form($form, &$form_state, \Meta\PluginInterface $plugin, $bundleid) {
 
-  $form['#tree']   = true;
-  $form['#theme']  = 'meta_mapping_form';
-  $form['#id']     = 'meta-mapping-form';
+  $form['#tree']  = true;
+  $form['#theme'] = 'meta_mapping_form';
+  $form['#id']    = 'meta-mapping-form';
 
   list($type, $bundle) = explode(':', $bundleid);
 
