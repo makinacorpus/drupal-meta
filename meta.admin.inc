@@ -9,14 +9,6 @@ use Meta\Entity\BundleInterface;
 use Meta\Entity\MetaEntity;
 
 /**
- * Global settings form.
- */
-function meta_admin_settings($form, &$form_state) {
-  // @todo
-  return system_settings_form($form);
-}
-
-/**
  * Misc. types (non entity) overview.
  */
 function meta_admin_misc() {
@@ -250,7 +242,7 @@ function meta_admin_bundle($form, &$form_state) {
 
       $options = array('query' => array('destination' => current_path()));
       $links = array(
-        l(t("customize"), 'admin/config/services/meta/bundles/' . $key . '/' . $bundle_id, $options)
+        l(t("edit mapping"), 'admin/config/services/meta/bundles/' . $key . '/' . $bundle_id, $options)
       );
 
       $rows[] = array(

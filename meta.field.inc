@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Open Graph Node field definition.
+ * Meta field definition.
  */
 
 /**

@@ -156,9 +156,6 @@ function meta_mapping_form($form, &$form_state, \Meta\PluginInterface $plugin, $
     'submit' => array(
       '#type'   => 'submit',
       '#value'  => t("Save"),
-      // Submit handler is attached this way because the real form ID will be
-      // 'meta_create_mapping_form' instead of this function name.
-      // @see meta_create_mapping_form().
       '#submit' => array('meta_mapping_form_submit_save'),
     ),
     'cancel' => array(

@@ -141,18 +141,32 @@ function meta_menu() {
     'type'             => MENU_CALLBACK | MENU_VISIBLE_IN_BREADCRUMB,
   );
 
-  // Main admin config form.
-  $items['admin/config/services/meta/settings'] = array(
-    'title'            => 'Settings',
-    'page callback'    => 'drupal_get_form',
-    'page arguments'   => array('meta_admin_settings'),
-    'access arguments' => array('administer site configuration'),
-    'file'             => 'meta.admin.inc',
-    'type'             => MENU_LOCAL_TASK,
-    'weight'           => 50,
-  );
-
   return $items;
+}
+
+/**
+ * Implements hook_help().
+ */
+function meta_help($path, $arg) {
+  switch ($path) {
+
+    case 'admin/config/services/meta':
+      $message = array();
+      $message[] = t("Each line of the following table correspond to a type of meta tags attached to an entity type, bundle couple. For example, you may have the <em>HTML meta tags</em> attached to <em>page node</em> type.");
+      $message[] = t("Displayed meta information into the HTML head tag will be driven by a specific mapping: the mapping will tie together entity arbitrary data (for example fields or object properties) to the targetted meta property.")
+        . ' ' . t("From this administration section, you can configure the default mapping for each bundle, which then may or may be not overriden by the user in the entity form.");
+      break;
+
+    case 'admin/config/services/meta/misc':
+      $message = array();
+      $message[] = t("Your site may display pages where no entities are attached (for example, a <em>view</em> listing), case in which the default configured mappings can not determine data to be attached to the HTML <em>HEAD</em> tag.")
+        . ' ' . t("This section of administration allows you to manually edit meta tags that will be provided to such pages. Each bundle here represents a method that allows to attach content to those pages.");
+      break;
+  }
+
+  if (isset($message)) {
+    return '<p>' . implode('</p><p>', $message) . '</p>';
+  }
 }
 
 /**
