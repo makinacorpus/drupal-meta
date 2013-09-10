@@ -445,6 +445,6 @@ class Service
      */
     public function loadEntities(array $idList)
     {
-        return entity_get_controller(META_ENTITY)->load($idList);
+        return $this->getMetaEntityController()->load($idList);
     }
 }
