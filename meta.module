@@ -46,6 +46,11 @@ const META_ENTITY = 'meta';
 const META_FILTER = 'meta_description';
 
 /**
+ * Arbitrary weight value for first meta in HEAD.
+ */
+const META_WEIGHT_START = 40315;
+
+/**
  * Custom autoloader.
  */
 if (!class_exists('Meta\Node')) {
@@ -367,7 +372,7 @@ function meta_entity_build(array $nodes) {
   $ret = array();
   foreach ($nodes as $node) {
     foreach ($node->build() as $build) {
-      $build['#weight'] = 40315 + (++$count);
+      $build['#weight'] = META_WEIGHT_START + (++$count);
       $ret['meta' . $count] = $build;
     }
   }
