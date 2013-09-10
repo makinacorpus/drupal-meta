@@ -1,7 +1,6 @@
 <?php
 
-use Meta\Input\DefaultInput;
-use Meta\Type\Structure;
+use Meta\Output\Structure;
 
 /*
  * Arrays
@@ -73,12 +72,11 @@ $data = array(
     ),
 );
 
-$input = new DefaultInput('void', new stdClass(), array($data));
-$type  = new Structure();
-$nodes = $type->buildNode($input);
+$output = new Structure();
+$nodes  = $output->buildNode(null, array($data));
 
-// This will print the given array.
-$output = '';
+// This will print the given array
+$data = '';
 foreach ($nodes as $node) {
-  $output .= (string)$node;
+  $data .= (string)$node;
 }
