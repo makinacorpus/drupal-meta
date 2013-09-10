@@ -188,6 +188,13 @@ function meta_mapping_form($form, &$form_state, \Meta\PluginInterface $plugin, $
     '#submit' => array('meta_mapping_form_submit_add'),
   );
 
+  $form['manual'] = array(
+    '#title'         => t("Allow user modifications"),
+    '#type'          => 'checkbox',
+    '#default_value' => $plugin->allowsUserModifications($type, $bundle),
+    '#description'   => t("If this is checked users that edit an entity will be able to arbitrarily change values of this mapping"),
+  );
+
   $form['actions'] = array(
     '#type'  => 'actions',
     'submit' => array(
@@ -244,6 +251,8 @@ function meta_mapping_form_submit_save($form, &$form_state) {
   $plugin = $form['#plugin'];
   $type   = $form['#etype'];
   $bundle = $form['#bundle'];
+
+  $plugin->toggleUserModifications($type, $bundle, (bool)$form_state['values']['manual']);
 
   // Find out values and rebuild mapping from it.
   $mapping = array();

@@ -13,6 +13,27 @@ interface PluginInterface extends ComponentInterface
     public function allowsArbitrary();
 
     /**
+     * Is this plugin configured for allowing user modifications for the given
+     * bundle
+     *
+     * @return boolean
+     *   True if the end user can edit node settings when editing a node
+     */
+    public function allowsUserModifications($type, $bundle = null);
+
+    /**
+     * Enable or disable
+     *
+     * @param boolean $toggle
+     *   False or true respectively disable or enable
+     * @param string $type
+     *   Entity type
+     * @param string $bundle
+     *   Bundle
+     */
+    public function toggleUserModifications($type, $bundle = null, $toggle = true);
+
+    /**
      * Get available properties to expose
      *
      * @return array[]

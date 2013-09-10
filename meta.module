@@ -287,6 +287,22 @@ function meta_service_get() {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function meta_form_node_form_alter(&$form, &$form_state) {
+  foreach (meta_service_get()->getPluginsFor('node', $form['#node']) as $plugin) {
+    if ($plugin->allowsUserModifications('node', $form['#node']->type)) {
+      $key = 'meta_' . $plugin->getType();
+      $form[$key] = array(
+        '#type'  => 'fieldset',
+        '#title' => t($plugin->getLabel()),
+        '#group' => 'additional_settings',
+      );
+    }
+  }
+}
+
+/**
  * Implements hook_entity_view().
  */
 function meta_entity_view($entity, $type, $view_mode, $langcode) {
