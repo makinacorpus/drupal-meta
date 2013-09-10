@@ -211,6 +211,8 @@ class Node
      */
     public function render($prefix = null)
     {
+        $output = '';
+
         if (null !== $prefix) {
             $name = $prefix . ":" . $this->name;
         } else if (null !== $this->prefix) {
