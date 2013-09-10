@@ -188,7 +188,12 @@ function meta_mapping_form($form, &$form_state, \Meta\PluginInterface $plugin, $
     '#submit' => array('meta_mapping_form_submit_add'),
   );
 
-  $form['manual'] = array(
+  $form['misc'] = array(
+    '#title'       => t("Options"),
+    '#type'        => 'fieldset',
+    '#collapsible' => false,
+  );
+  $form['misc']['manual'] = array(
     '#title'         => t("Allow user modifications"),
     '#type'          => 'checkbox',
     '#default_value' => $plugin->allowsUserModifications($type, $bundle),
@@ -252,7 +257,7 @@ function meta_mapping_form_submit_save($form, &$form_state) {
   $type   = $form['#etype'];
   $bundle = $form['#bundle'];
 
-  $plugin->toggleUserModifications($type, $bundle, (bool)$form_state['values']['manual']);
+  $plugin->toggleUserModifications($type, $bundle, (bool)$form_state['values']['misc']['manual']);
 
   // Find out values and rebuild mapping from it.
   $mapping = array();
